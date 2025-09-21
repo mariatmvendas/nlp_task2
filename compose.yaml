@@ -1,0 +1,22 @@
+version: "3.9"
+ 
+services:
+  grobid:
+    image: grobid/grobid:0.8.2
+    ports:
+      - "8070:8070"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "--show-error", "http://localhost:8070/api/isalive"]
+      interval: 10s
+      timeout: 3s
+      retries: 30
+
+  api:
+    build: ./app
+    depends_on:
+      grobid:
+        condition: service_healthy
+    environment:
+      GROBID_URL: "http://grobid:8070"
+    ports:
+      - "8000:8000"
